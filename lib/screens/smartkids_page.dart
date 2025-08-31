@@ -1,51 +1,134 @@
 import 'package:flutter/material.dart';
-import '../sk_resources/paperback_textbooks.dart';
-import '../sk_resources/paperback_workbooks.dart';
-import '../sk_resources/soft_form_worksheets.dart';
-import '../sk_resources/classroom_interactive_app.dart';
-import '../sk_resources/home_interactive_app.dart';
-import '../sk_resources/auto_paper_generator.dart';
+import '../data/app_data.dart';
+import '../widgets/custom_button.dart';
+import 'resource_grid_screen.dart';
+import 'web_content_screen.dart'; // ← CHANGED: Import the new WebContentScreen
 
 class SmartKidsPage extends StatelessWidget {
-  // Remove 'const' from the constructor
-  SmartKidsPage({super.key});
-
-  final List<Map<String, dynamic>> _resources = [
-    {"title": "Paperback Textbooks", "page": SKPaperbackTextbooks()},
-    {"title": "Paperback Workbooks", "page": SKPaperbackWorkbooks()},
-    {"title": "Soft Form Worksheets", "page": SKSoftFormWorksheets()},
-    {"title": "Classroom Interactive App", "page": SKClassroomInteractiveApp()},
-    {"title": "Home Interactive App", "page": SKHomeInteractiveApp()},
-    {"title": "Auto Paper Generator", "page": SKAutoPaperGenerator()},
-  ];
+  const SmartKidsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("SmartKids Series")),
+      appBar: AppBar(
+        title: const Text('SmartKids Series'),
+        backgroundColor: Colors.green,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: _resources.length,
-          itemBuilder: (context, index) {
-            final resource = _resources[index];
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  minimumSize: const Size(double.infinity, 50),
-                  textStyle: const TextStyle(fontSize: 16),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => resource['page']),
-                  );
-                },
-                child: Text(resource['title']),
-              ),
-            );
-          },
+        child: ListView(
+          children: [
+            CustomButton(
+              title: 'Paperback Textbooks',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => ResourceGridScreen(
+                      screenTitle: 'SmartKids Paperback Textbooks',
+                      resources: AppData.skPaperBackTextbooks,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 15),
+            CustomButton(
+              title: 'Paperback Workbooks',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => ResourceGridScreen(
+                      screenTitle: 'SmartKids Paperback Workbooks',
+                      resources: AppData.skPaperBackWorkbooks,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 15),
+            CustomButton(
+              title: 'Soft Form Worksheets',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => ResourceGridScreen(
+                      screenTitle: 'SmartKids Soft Form Worksheets',
+                      resources: AppData.skSoftFormWorksheets,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 15),
+            CustomButton(
+              title: 'Classroom Interactive App',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => ResourceGridScreen(
+                      screenTitle: 'SmartKids Classroom Interactive App',
+                      resources: AppData.skClassroomInteractiveApp,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 15),
+            CustomButton(
+              title: 'Home Interactive App',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => ResourceGridScreen(
+                      screenTitle: 'SmartKids Home Interactive App',
+                      resources: AppData.skHomeInteractiveApp,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 15),
+            CustomButton(
+              title: 'Auto Paper Generator (Simulation)',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => WebContentScreen(
+                      // ← CHANGED: Use WebContentScreen
+                      title: 'SmartKids Paper Generator Simulation',
+                      contentPath:
+                          'assets/html/sk/auto_paper_generator/auto_paper_Simulation/',
+                      isLocal: true,
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 15),
+            CustomButton(
+              title: 'Auto Paper Generator (App)',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (ctx) => WebContentScreen(
+                      // ← CHANGED: Use WebContentScreen
+                      title: 'SmartKids Paper Generator App',
+                      contentPath:
+                          'assets/html/sk/auto_paper_generator/auto_paper_app/',
+                      isLocal: true,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
