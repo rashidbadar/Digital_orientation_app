@@ -1,0 +1,83 @@
+name: digital_orientation
+description: A new Flutter project for SmartKids Series
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: "^3.8.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  webview_flutter: ^4.13.0
+  path_provider: ^2.1.2   # ✅ Added to fix missing import
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # Splash screen images
+    - assets/images/splash/
+
+    # Series images
+    - assets/images/sk-resources/textbooks/
+    - assets/images/rf-resources/
+    - assets/images/ab-resources/
+    - assets/images/ai-resources/
+
+    # Audio and icons
+    - assets/audio/
+    - assets/icons/
+
+    # SK series HTML projects (offline)
+    - assets/html/sk/paperback_textbooks/eng_pg/
+    - assets/html/sk/paperback_textbooks/eng_nur/
+    - assets/html/sk/paperback_textbooks/eng_nur/assets/
+    - assets/html/sk/paperback_textbooks/eng_prep/
+    - assets/html/sk/paperback_textbooks/eng_prep/assets/
+    - assets/html/sk/paperback_textbooks/math_pg/
+    - assets/html/sk/paperback_textbooks/math_pg/assets/
+    - assets/html/sk/paperback_textbooks/math_nur/
+    - assets/html/sk/paperback_textbooks/math_nur/assets/
+    - assets/html/sk/paperback_textbooks/math_prep/
+    - assets/html/sk/paperback_textbooks/math_prep/assets/
+    - assets/html/sk/paperback_textbooks/urdu_pg/
+    - assets/html/sk/paperback_textbooks/urdu_pg/assets/
+    - assets/html/sk/paperback_textbooks/urdu_nur/
+    - assets/html/sk/paperback_textbooks/urdu_nur/assets/
+    - assets/html/sk/paperback_textbooks/urdu_prep/
+    - assets/html/sk/paperback_textbooks/urdu_prep/assets/
+
+    # RF series HTML projects (offline)
+    - assets/html/rf/paperback_textbooks/
+    - assets/html/rf/paperback_textbooks/assets/
+    - assets/html/rf/soft_form_worksheets/
+    - assets/html/rf/soft_form_worksheets/assets/
+    - assets/html/rf/home_interactive_app/
+    - assets/html/rf/home_interactive_app/assets/
+    - assets/html/rf/auto_paper_generator/
+    - assets/html/rf/auto_paper_generator/assets/
+
+    # AB series HTML projects (offline)
+    - assets/html/ab/paperback_textbooks/
+    - assets/html/ab/paperback_textbooks/assets/
+    - assets/html/ab/soft_form_key_books/
+    - assets/html/ab/soft_form_key_books/assets/
+    - assets/html/ab/auto_paper_generator/
+    - assets/html/ab/auto_paper_generator/assets/
+
+    # AI series HTML projects (offline)
+    - assets/html/ai/paperback_textbooks/
+    - assets/html/ai/paperback_textbooks/assets/
+    - assets/html/ai/soft_form_key_books/
+    - assets/html/ai/soft_form_key_books/assets/
+    - assets/html/ai/auto_paper_generator/
+    - assets/html/ai/auto_paper_generator/assets/
