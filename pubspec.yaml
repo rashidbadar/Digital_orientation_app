@@ -24,17 +24,18 @@ flutter:
   uses-material-design: true
 
   assets:
-    # ✅ All images (covers everything in images/ folder recursively)
+    # ✅ Declare ENTIRE folders to include ALL contents recursively
+    # This ensures all images, HTML, JS, CSS, and other assets are included
+    
+    # All images (covers everything in images/ folder recursively)
     - assets/images/
     
-    # ✅ All audio files
+    # All audio files
     - assets/audio/
     
-    # ✅ All icons
+    # All icons
     - assets/icons/
     
     # ✅ CRITICAL: Entire HTML folders for all series (includes ALL files recursively)
-    - assets/html/sk/
-    - assets/html/rf/
-    - assets/html/ab/
-    - assets/html/ai/
+    # This will include ALL Captivate projects with their assets, JS, CSS, images, etc.
+    - assets/html/

@@ -6,7 +6,7 @@ class AppData {
   static final List<Resource> skPaperBackTextbooks = [
     Resource(
       title: 'English PG',
-      imagePath: 'assets/images/sk-resources/textbooks/eng_pg.png',
+      imagePath: 'assets/images/sk-resources/paperback_textbooks/eng_pg.png',
       htmlPath: 'assets/html/sk/paperback_textbook/eng_pg/',
     ),
     Resource(
