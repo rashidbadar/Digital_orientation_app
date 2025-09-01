@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; // ADD THIS IMPORT
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebContentScreen extends StatefulWidget {
@@ -24,21 +25,34 @@ class _WebContentScreenState extends State<WebContentScreen> {
   bool _isLoading = true;
   bool _hasError = false;
   String _errorMessage = '';
+  String _effectivePath = '';
+
+  String _getEffectivePath(String path) {
+    if (!widget.isLocal) {
+      return path; // For web URLs, return as-is
+    }
+
+    // For local paths, ensure we have a specific file to load
+    if (path.endsWith('/')) {
+      // If it's a folder path, append index.html
+      return '${path}index.html';
+    } else if (!path.contains('.')) {
+      // If it's a path without extension, assume it's a folder and add index.html
+      return '$path/index.html';
+    }
+
+    // If it already has a file extension, return as-is
+    return path;
+  }
 
   String _getUrl(String path) {
     if (!widget.isLocal) return path;
-    if (kIsWeb) return path;
 
-    // For local files, ensure we're pointing to the index.html
     String finalPath = path;
 
-    // If path is a directory (ends with slash), append index.html
-    if (finalPath.endsWith('/')) {
-      finalPath = '${finalPath}index.html';
-    }
-    // If path doesn't have a file extension, assume it's a directory and add index.html
-    else if (!finalPath.contains('.')) {
-      finalPath = '$finalPath/index.html';
+    // Remove 'assets/' prefix if present (Android adds it automatically)
+    if (finalPath.startsWith('assets/')) {
+      finalPath = finalPath.substring(7);
     }
 
     if (Platform.isAndroid) {
@@ -50,20 +64,30 @@ class _WebContentScreenState extends State<WebContentScreen> {
     }
   }
 
+  // UPDATED: Simplified asset existence check
+  Future<bool> _assetExists(String path) async {
+    try {
+      if (kIsWeb) {
+        // For web, we can't easily check if file exists, so we assume it does
+        return true;
+      } else {
+        // For mobile, try to load the asset using rootBundle
+        await rootBundle.load('assets/$path');
+        return true;
+      }
+    } catch (e) {
+      print('Asset not found: assets/$path, error: $e');
+      return false;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     _initializeWebView();
   }
 
-  void _initializeWebView() {
-    final url = _getUrl(widget.contentPath);
-    print('=== WEBVIEW DEBUG ===');
-    print('Original path: ${widget.contentPath}');
-    print('Final URL: $url');
-    print('Platform: ${Platform.operatingSystem}');
-    print('=== END DEBUG ===');
-
+  void _initializeWebView() async {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
@@ -92,15 +116,52 @@ class _WebContentScreenState extends State<WebContentScreen> {
             });
             print('WEBVIEW ERROR: ${error.description}');
             print('Error URL: ${error.url}');
-            print('Error Type: ${error.errorType}');
-            print('Error Code: ${error.errorCode}');
-          },
-          onUrlChange: (urlChange) {
-            print('URL changed to: ${urlChange.url}');
           },
         ),
-      )
-      ..loadRequest(Uri.parse(url));
+      );
+
+    // Get the effective path (handles folders -> index.html)
+    _effectivePath = _getEffectivePath(widget.contentPath);
+
+    // Check if asset exists first (for local files)
+    if (widget.isLocal) {
+      final assetExists = await _assetExists(_effectivePath);
+
+      if (!assetExists) {
+        setState(() {
+          _isLoading = false;
+          _hasError = true;
+          _errorMessage =
+              'Asset not found: assets/$_effectivePath\n\n'
+              'Please check:\n'
+              '1. File exists in assets/ folder\n'
+              '2. Path is correct in pubspec.yaml\n'
+              '3. Run "flutter clean && flutter pub get"';
+        });
+        return;
+      }
+    }
+
+    final url = _getUrl(_effectivePath);
+    print('=== WEBVIEW DEBUG ===');
+    print('Original path: ${widget.contentPath}');
+    print('Effective path: $_effectivePath');
+    print('Final URL: $url');
+    print('Platform: ${Platform.operatingSystem}');
+    print('=== END DEBUG ===');
+
+    try {
+      await _controller.loadRequest(Uri.parse(url));
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _hasError = true;
+        _errorMessage =
+            'Failed to load URL: $e\n\n'
+            'Trying to load: $url\n'
+            'From original: ${widget.contentPath}';
+      });
+    }
   }
 
   void _reloadPage() {
@@ -108,7 +169,7 @@ class _WebContentScreenState extends State<WebContentScreen> {
       _isLoading = true;
       _hasError = false;
     });
-    _controller.reload();
+    _initializeWebView();
   }
 
   @override
@@ -125,6 +186,34 @@ class _WebContentScreenState extends State<WebContentScreen> {
               onPressed: _reloadPage,
               tooltip: 'Reload',
             ),
+          IconButton(
+            icon: const Icon(Icons.info_outline),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: const Text('Debug Information'),
+                  content: Text(
+                    'Original Path: ${widget.contentPath}\n'
+                    'Effective Path: $_effectivePath\n'
+                    'Is Local: ${widget.isLocal}\n'
+                    'Error: $_errorMessage\n\n'
+                    'Make sure:\n'
+                    '1. File exists in correct location\n'
+                    '2. Path is in pubspec.yaml assets\n'
+                    '3. Run "flutter clean && flutter pub get"',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx),
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+              );
+            },
+            tooltip: 'Debug Info',
+          ),
         ],
       ),
       body: Stack(
@@ -138,7 +227,7 @@ class _WebContentScreenState extends State<WebContentScreen> {
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text('Loading Adobe Captivate Project...'),
+                  Text('Loading Content...'),
                 ],
               ),
             ),
@@ -178,7 +267,7 @@ class _WebContentScreenState extends State<WebContentScreen> {
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Check if the HTML files exist in your assets folder',
+                      'Check if the file exists in your assets folder',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.white70, fontSize: 12),
                     ),

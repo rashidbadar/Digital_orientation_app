@@ -5,7 +5,7 @@ class AppData {
   // ================== SMARTKIDS (SK) SERIES ==================
   static final List<Resource> skPaperBackTextbooks = [
     Resource(
-      title: 'English PG',
+      title: 'English PG_1',
       imagePath: 'assets/images/sk-resources/paperback_textbooks/eng_pg.png',
       htmlPath: 'assets/html/sk/paperback_textbook/eng_pg/',
     ),

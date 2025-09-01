@@ -15,6 +15,7 @@ dependencies:
   webview_flutter: ^4.10.0
   path_provider: ^2.1.2
   url_launcher: ^6.1.11
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -25,18 +26,11 @@ flutter:
   uses-material-design: true
 
   assets:
-    # ✅ Declare ENTIRE folders to include ALL contents recursively
-    # This ensures all images, HTML, JS, CSS, and other assets are included
-    
-    # All images (covers everything in images/ folder recursively)
+    # Logo
+    - assets/images/splash/logo.png
+
+    # Root asset directories (Flutter will include everything inside)
     - assets/images/
-    
-    # All audio files
     - assets/audio/
-    
-    # All icons
     - assets/icons/
-    
-    # ✅ CRITICAL: Entire HTML folders for all series (includes ALL files recursively)
-    # This will include ALL Captivate projects with their assets, JS, CSS, images, etc.
     - assets/html/
