@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import '../data/app_data.dart';
 import '../widgets/custom_button.dart';
+import 'web_content_screen.dart';
+import '../models/resource_model.dart';
 import 'resource_grid_screen.dart';
-import 'web_content_screen.dart'; // ← CHANGED IMPORT
 
 class ReadifyPage extends StatelessWidget {
   const ReadifyPage({super.key});
+
+  // Map of Readify series categories to their resources
+  static final Map<String, List<Resource>> _rfSeries = {
+    'Paperback Textbooks': AppData.rfPaperBackTextbooks,
+    'Soft Form Worksheets': AppData.rfSoftFormWorksheets,
+    'Home Interactive App': AppData.rfHomeInteractiveApp,
+    'Auto Paper Generator': AppData.rfAutoPaperGenerator,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -17,88 +26,55 @@ class ReadifyPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
-          children: [
-            CustomButton(
-              title: 'Paperback Textbooks',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => ResourceGridScreen(
-                      screenTitle: 'Readify Paperback Textbooks',
-                      resources: AppData.rfPaperBackTextbooks,
-                    ),
+          children: _rfSeries.entries.expand((entry) {
+            final category = entry.key;
+            final resources = entry.value;
+
+            // If multiple resources, open ResourceGridScreen
+            if (resources.length > 1) {
+              return [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 15),
+                  child: CustomButton(
+                    title: category,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (ctx) => ResourceGridScreen(
+                            screenTitle: 'Readify $category',
+                            resources: resources,
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
-            const SizedBox(height: 15),
-            CustomButton(
-              title: 'Soft Form Worksheets',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => ResourceGridScreen(
-                      screenTitle: 'Readify Soft Form Worksheets',
-                      resources: AppData.rfSoftFormWorksheets,
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 15),
-            CustomButton(
-              title: 'Home Interactive App',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => ResourceGridScreen(
-                      screenTitle: 'Readify Home Interactive App',
-                      resources: AppData.rfHomeInteractiveApp,
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 15),
-            CustomButton(
-              title: 'Auto Paper Generator (Simulation)',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => WebContentScreen(
-                      // ← CHANGED
-                      title: 'Readify Paper Generator Simulation',
-                      contentPath:
-                          'assets/html/rf/auto_paper_generator/auto_paper_Simulation/',
-                      isLocal: true,
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 15),
-            CustomButton(
-              title: 'Auto Paper Generator (App)',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => WebContentScreen(
-                      // ← CHANGED
-                      title: 'Readify Paper Generator App',
-                      contentPath:
-                          'assets/html/rf/auto_paper_generator/auto_paper_app/',
-                      isLocal: true,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+                ),
+              ];
+            }
+
+            // If single resource, open directly in WebContentScreen
+            return resources.map((resource) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: CustomButton(
+                  title: resource.title,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (ctx) => WebContentScreen(
+                          title: resource.title,
+                          contentPath: resource.htmlPath,
+                          isLocal: resource.isLocal,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }).toList();
+          }).toList(),
         ),
       ),
     );

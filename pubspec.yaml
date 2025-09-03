@@ -26,11 +26,29 @@ flutter:
   uses-material-design: true
 
   assets:
-    # Logo
-    - assets/images/splash/logo.png
 
-    # Root asset directories (Flutter will include everything inside)
-    - assets/images/
-    - assets/audio/
-    - assets/icons/
-    - assets/html/
+    - assets/images/splash/
+    
+    # ================= SMARTKIDS SERIES =================
+    - assets/html/sk/paperback_textbook/eng_pg/index.html
+    - assets/html/sk/paperback_workbooks/
+    - assets/html/sk/soft_form_worksheets/
+    - assets/html/sk/classroom_interactive_app/
+    - assets/html/sk/home_interactive_app/
+    - assets/html/sk/auto_paper_generator/
+
+    # ================= READIFY SERIES =================
+    - assets/html/rf/paperback_textbooks/
+    - assets/html/rf/soft_form_worksheets/
+    - assets/html/rf/home_interactive_app/
+    - assets/html/rf/auto_paper_generator/
+
+    # ================= ABBASI SERIES =================
+    - assets/html/ab/paperback_textbooks/
+    - assets/html/ab/soft_form_key_books/
+    - assets/html/ab/auto_paper_generator/
+
+    # ================= AERI SERIES =================
+    - assets/html/ai/paperback_textbooks/
+    - assets/html/ai/soft_form_key_books/
+    - assets/html/ai/auto_paper_generator/

@@ -1,53 +1,52 @@
 // lib/models/resource_model.dart
+import 'package:flutter/services.dart';
 
 class Resource {
   final String title;
-  final String imagePath;
   final String htmlPath; // Can be folder path or specific file path
-  final bool isLocal; // True for local files, false for web URLs
+  final bool isLocal; // True for local assets, false for web URLs
 
-  Resource({
-    required this.title,
-    required this.imagePath,
-    required this.htmlPath,
-    this.isLocal = true,
-  });
+  Resource({required this.title, required this.htmlPath, this.isLocal = true});
 
-  // Getter to provide the correct path for WebView loading
+  /// Normalize paths for Flutter assets (replace backslashes)
+  String get _normalizedHtmlPath => htmlPath.replaceAll('\\', '/');
+
+  /// Returns the correct path for WebView loading
   String get effectivePath {
-    if (!isLocal) {
-      return htmlPath; // For web URLs, return as-is
+    if (!isLocal) return htmlPath; // Remote URL, use as-is
+
+    String path = _normalizedHtmlPath;
+
+    // If it's a folder path (ends with '/' or has no extension), append index.html
+    if (path.endsWith('/')) {
+      return '${path}index.html';
+    } else if (!path.contains('.')) {
+      return '$path/index.html';
     }
 
-    // For local paths, ensure we have a specific file to load
-    if (htmlPath.endsWith('/')) {
-      // If it's a folder path, append index.html
-      return '${htmlPath}index.html';
-    } else if (!htmlPath.contains('.')) {
-      // If it's a path without extension, assume it's a folder and add index.html
-      return '$htmlPath/index.html';
-    }
-
-    // If it already has a file extension, return as-is
-    return htmlPath;
+    // Already a file
+    return path;
   }
 
-  // Helper method to check if this is a folder path
+  /// Check if path represents a folder
   bool get isFolderPath {
-    return isLocal && (htmlPath.endsWith('/') || !htmlPath.contains('.'));
+    final path = _normalizedHtmlPath;
+    return isLocal && (path.endsWith('/') || !path.contains('.'));
   }
 
-  // Helper method to get the directory path (for asset loading)
+  /// Get folder directory path
   String get directoryPath {
-    if (isFolderPath) {
-      return htmlPath;
-    } else {
-      // Extract directory from file path
-      final lastSlash = htmlPath.lastIndexOf('/');
-      if (lastSlash != -1) {
-        return htmlPath.substring(0, lastSlash + 1);
-      }
-      return '';
-    }
+    final path = _normalizedHtmlPath;
+    if (isFolderPath) return path;
+
+    final lastSlash = path.lastIndexOf('/');
+    if (lastSlash != -1) return path.substring(0, lastSlash + 1);
+    return '';
+  }
+
+  /// Load HTML as string from Flutter assets (for WebView)
+  Future<String> loadHtml() async {
+    if (!isLocal) throw Exception('Cannot load remote HTML using loadHtml()');
+    return await rootBundle.loadString(effectivePath);
   }
 }

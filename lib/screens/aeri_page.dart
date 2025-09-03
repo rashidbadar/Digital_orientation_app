@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
 import '../data/app_data.dart';
 import '../widgets/custom_button.dart';
-import 'resource_grid_screen.dart';
-import 'web_content_screen.dart'; // ← CHANGED IMPORT
+import 'web_content_screen.dart';
+import '../models/resource_model.dart';
 
 class AeriPage extends StatelessWidget {
   const AeriPage({super.key});
+
+  // Dynamic map of Aeri series categories and their resources
+  static final Map<String, List<Resource>> _aeriSeries = {
+    'Paperback Textbooks': AppData.aiPaperBackTextbooks,
+    'Soft Form Key Books': AppData.aiSoftFormKeyBooks,
+    'Auto Paper Generator': AppData.aiAutoPaperGenerator,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -17,73 +24,31 @@ class AeriPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
-          children: [
-            CustomButton(
-              title: 'Paperback Textbooks',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => ResourceGridScreen(
-                      screenTitle: 'Aeri Paperback Textbooks',
-                      resources: AppData.aiPaperBackTextbooks,
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 15),
-            CustomButton(
-              title: 'Soft Form Key Books',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => ResourceGridScreen(
-                      screenTitle: 'Aeri Soft Form Key Books',
-                      resources: AppData.aiSoftFormKeyBooks,
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 15),
-            CustomButton(
-              title: 'Auto Paper Generator (Simulation)',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => WebContentScreen(
-                      // ← CHANGED
-                      title: 'Aeri Paper Generator Simulation',
-                      contentPath:
-                          'assets/html/ai/auto_paper_generator/auto_paper_Simulation/',
-                      isLocal: true,
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 15),
-            CustomButton(
-              title: 'Auto Paper Generator (App)',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => WebContentScreen(
-                      // ← CHANGED
-                      title: 'Aeri Paper Generator App',
-                      contentPath:
-                          'assets/html/ai/auto_paper_generator/auto_paper_app/',
-                      isLocal: true,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+          children: _aeriSeries.entries.expand((entry) {
+            final resources = entry.value;
+
+            // Create a button for each resource
+            return resources.map((resource) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: CustomButton(
+                  title: resource.title,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (ctx) => WebContentScreen(
+                          title: resource.title,
+                          contentPath: resource.htmlPath,
+                          isLocal: resource.isLocal,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }).toList();
+          }).toList(),
         ),
       ),
     );

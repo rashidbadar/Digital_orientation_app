@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'screens/splash_screen.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // Ensures proper initialization
   runApp(const DigitalOrientationApp());
 }
 

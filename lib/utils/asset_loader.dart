@@ -1,67 +1,77 @@
 import 'package:flutter/services.dart';
 
 class AssetLoader {
-  // Load HTML content from assets
-  static Future<String> loadHTML(String filePath) async {
+  /// Loads an HTML file from assets/html/[path] and fixes relative paths
+  static Future<String> loadHtml(String filePath) async {
     try {
-      return await rootBundle.loadString('assets/$filePath');
+      final assetPath = filePath.startsWith('assets/')
+          ? filePath
+          : 'assets/html/$filePath';
+
+      final htmlContent = await rootBundle.loadString(assetPath);
+
+      return _fixRelativePaths(htmlContent, assetPath);
     } catch (e) {
-      return _getErrorHTML('Error loading HTML: $e\nPath: assets/$filePath');
+      return """
+      <html>
+        <body style="font-family: sans-serif; padding:20px;">
+          <h3>Error loading $filePath</h3>
+          <p>$e</p>
+        </body>
+      </html>
+      """;
     }
   }
 
-  // Error HTML template
-  static String _getErrorHTML(String error) {
-    return '''
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error Loading Content</title>
-    <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            padding: 40px;
-            text-align: center;
-            color: #555;
-        }
-        .error-container {
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            background-color: #f9f9f9;
-        }
-        .error-title {
-            color: #d32f2f;
-            font-size: 24px;
-            margin-bottom: 20px;
-        }
-        .error-details {
-            background-color: #fff3f3;
-            padding: 15px;
-            border-radius: 4px;
-            border-left: 4px solid #d32f2f;
-            text-align: left;
-            margin: 20px 0;
-            font-family: monospace;
-            font-size: 12px;
-        }
-    </style>
-</head>
-<body>
-    <div class="error-container">
-        <div class="error-title">⚠️ Content Failed to Load</div>
-        <p>The requested learning content could not be loaded.</p>
-        <div class="error-details">$error</div>
-        <p style="margin-top: 20px; color: #666;">
-            Please check if the file exists in your assets folder.
-        </p>
-    </div>
-</body>
-</html>
-''';
+  /// Fix relative paths (css, js, images, url(...) in CSS) inside HTML for WebView
+  static String _fixRelativePaths(String html, String htmlAssetPath) {
+    final htmlFolder = htmlAssetPath.substring(
+      0,
+      htmlAssetPath.lastIndexOf('/'),
+    );
+    const base = 'file:///android_asset/flutter_assets/';
+
+    String toAbsolute(String relativePath) {
+      // If already absolute, return as is
+      if (relativePath.startsWith('assets/') ||
+          relativePath.startsWith('file:') ||
+          relativePath.startsWith('http')) {
+        return '$base$relativePath';
+      }
+
+      // Normalize ../ in paths
+      var path = relativePath;
+      var folder = htmlFolder;
+
+      while (path.startsWith('../')) {
+        path = path.substring(3);
+        folder = folder.substring(0, folder.lastIndexOf('/'));
+      }
+
+      return '$base$folder/$path';
+    }
+
+    // Fix src and href
+    html = html.replaceAllMapped(
+      RegExp(r'src="(?!https?:|file:)([^"]+)"'),
+      (m) => 'src="${toAbsolute(m[1]!)}"',
+    );
+
+    html = html.replaceAllMapped(
+      RegExp(r'href="(?!https?:|file:)([^"]+)"'),
+      (m) => 'href="${toAbsolute(m[1]!)}"',
+    );
+
+    // Fix url(...) in CSS
+    html = html.replaceAllMapped(RegExp(r'url\(([^)]+)\)'), (m) {
+      var path = m[1]!.trim();
+      if ((path.startsWith('"') && path.endsWith('"')) ||
+          (path.startsWith("'") && path.endsWith("'"))) {
+        path = path.substring(1, path.length - 1);
+      }
+      return 'url("${toAbsolute(path)}")';
+    });
+
+    return html;
   }
 }

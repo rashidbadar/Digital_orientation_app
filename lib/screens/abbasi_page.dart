@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import '../data/app_data.dart';
 import '../widgets/custom_button.dart';
-import 'resource_grid_screen.dart';
-import 'web_content_screen.dart'; // ← CHANGED IMPORT
+import 'web_content_screen.dart';
 
 class AbbasiPage extends StatelessWidget {
   const AbbasiPage({super.key});
+
+  // Dynamic map of Abbasi series categories and their resources
+  static final Map<String, List> _abbasiSeries = {
+    'Paperback Textbooks': AppData.abPaperBackTextbooks,
+    'Soft Form Key Books': AppData.abSoftFormKeyBooks,
+    'Auto Paper Generator': AppData.abAutoPaperGenerator,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -17,73 +23,31 @@ class AbbasiPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
-          children: [
-            CustomButton(
-              title: 'Paperback Textbooks',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => ResourceGridScreen(
-                      screenTitle: 'Abbasi Paperback Textbooks',
-                      resources: AppData.abPaperBackTextbooks,
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 15),
-            CustomButton(
-              title: 'Soft Form Key Books',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => ResourceGridScreen(
-                      screenTitle: 'Abbasi Soft Form Key Books',
-                      resources: AppData.abSoftFormKeyBooks,
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 15),
-            CustomButton(
-              title: 'Auto Paper Generator (Simulation)',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => WebContentScreen(
-                      // ← CHANGED
-                      title: 'Abbasi Paper Generator Simulation',
-                      contentPath:
-                          'assets/html/ab/auto_paper_generator/auto_paper_Simulation/',
-                      isLocal: true,
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 15),
-            CustomButton(
-              title: 'Auto Paper Generator (App)',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (ctx) => WebContentScreen(
-                      // ← CHANGED
-                      title: 'Abbasi Paper Generator App',
-                      contentPath:
-                          'assets/html/ab/auto_paper_generator/auto_paper_app/',
-                      isLocal: true,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+          children: _abbasiSeries.entries.expand((entry) {
+            final resources = entry.value;
+
+            // For each resource, create a button
+            return resources.map((resource) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: CustomButton(
+                  title: resource.title,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (ctx) => WebContentScreen(
+                          title: resource.title,
+                          contentPath: resource.htmlPath,
+                          isLocal: resource.isLocal,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            }).toList();
+          }).toList(),
         ),
       ),
     );
